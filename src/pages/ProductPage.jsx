@@ -29,7 +29,6 @@ export default function ProductPage() {
   }, [])
 
   const handleSave = async (payload) => {
-    debugger
     if (editing) {
       await productApi.update(editing.product_id, payload)
     } else {
