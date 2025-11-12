@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import useAuth from '../hooks/useAuth';
 
 export default function Navbar() {
-  const { user, logout } = useAuth();
+  const { auth, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [animating, setAnimating] = useState(false);
+  const user = auth.user;
 
   const handleCloseMenu = () => {
     setAnimating(true);

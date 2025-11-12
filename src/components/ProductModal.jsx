@@ -1,26 +1,22 @@
 import React, { useState, useEffect } from 'react';
 
 export default function ProductModal({ isOpen, onClose, onSave, product }) {
-  const [form, setForm] = useState({
+  const initProduct = {
     product_code: '',
     product_name: '',
     category: '',
     sale_price: '',
     quantity_in_stock: '',
-  });
+  }
+
+  const [form, setForm] = useState(initProduct);
   const [show, setShow] = useState(false);
 
   // Load form khi mở modal
   useEffect(() => {
     if (product) setForm(product);
     else
-      setForm({
-        product_code: '',
-        product_name: '',
-        category: '',
-        sale_price: '',
-        quantity_in_stock: '',
-      });
+      setForm(initProduct);
   }, [product]);
 
   // Hiệu ứng fade
@@ -46,6 +42,7 @@ export default function ProductModal({ isOpen, onClose, onSave, product }) {
     e.preventDefault();
     onSave(form);
     onClose();
+    setForm(initProduct);
   };
 
   return (

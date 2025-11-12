@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import productApi from '../api/productApi'
+import { useApi } from '../hooks/useApi';
 import ChartCard from '../components/ChartCard'
 import { formatMoney } from '../utils/helpers'
 
@@ -7,6 +7,7 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ totalProducts: 0, totalValue: 0 })
   const [chart, setChart] = useState({ labels: [], values: [] })
   const isLoaded  = useRef(false) // 🧠 Ngăn gọi API 2 lần
+  const { product } = useApi();
 
   useEffect(() => {
     if (isLoaded .current) return // nếu đã gọi rồi thì bỏ qua
@@ -14,7 +15,8 @@ export default function Dashboard() {
 
     async function load() {
       try {
-        const res = await productApi.getAll()
+        const res = await product.getAll()
+        
         const data = res.data || res
 
         const totalProducts = data.length

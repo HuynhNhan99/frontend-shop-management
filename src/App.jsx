@@ -5,20 +5,12 @@ import ProductPage from './pages/ProductPage';
 import Dashboard from './pages/Dashboard';
 import Navbar from './components/Navbar';
 import useAuth from './hooks/useAuth';
-import { LoadingProvider, useLoading } from './context/LoadingContext';
-import { setLoadingHandler } from './api/axiosClient';
 import GlobalLoading from './components/GlobalLoading';
 import ThemeSwitcher from './components/ThemeSwitcher'; // nếu Nhàn đang dùng dark mode
 
 function AppContent() {
-  const { user, loading } = useAuth();
-  const { setLoading } = useLoading();
-
-  useEffect(() => {
-    setLoadingHandler(setLoading); // Gắn setLoading vào axiosClient
-  }, [setLoading]);
-
-  // Nếu đang loading => hiển thị hiệu ứng toàn cục
+  const { auth, loading } = useAuth();
+  const user = auth.user;
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)]">
@@ -26,7 +18,6 @@ function AppContent() {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-500">
       <GlobalLoading />
@@ -48,8 +39,6 @@ function AppContent() {
 
 export default function App() {
   return (
-    <LoadingProvider>
       <AppContent />
-    </LoadingProvider>
   );
 }

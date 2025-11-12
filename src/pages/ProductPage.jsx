@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import productApi from '../api/productApi'
+import { useApi } from '../hooks/useApi';
 import ProductModal from '../components/ProductModal'
 import ProductTable from '../components/ProductTable'
 import useAuth from '../hooks/useAuth'
@@ -8,13 +8,15 @@ export default function ProductPage() {
   const [products, setProducts] = useState([])
   const [editing, setEditing] = useState(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const { user } = useAuth()
+  const { auth } = useAuth()
+  const { product } = useApi();
+  const user = auth.user
   const isAdmin = user?.role === 'admin'
   const isLoaded = useRef(false)
 
   const loadProduct = async () => {
     try {
-      const res = await productApi.getAll()
+      const res = await product.getAll()
       const data = res.data || res
       setProducts(data)
     } catch (err) {
@@ -30,9 +32,9 @@ export default function ProductPage() {
 
   const handleSave = async (payload) => {
     if (editing) {
-      await productApi.update(editing.product_id, payload)
+      await product.update(editing.product_id, payload)
     } else {
-      await productApi.add(payload)
+      await product.add(payload)
     }
     setIsModalOpen(false)
     setEditing(null)
@@ -41,7 +43,7 @@ export default function ProductPage() {
 
   const handleDelete = async (id) => {
     if (!confirm('Chắc chắn xóa?')) return
-    await productApi.remove(id)
+    await product.remove(id)
     loadProduct()
   }
 

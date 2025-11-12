@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/(.*)", "destination": "/" }
+    { "source": "/auth/(.*)", "destination": "https://backend-shop-management.onrender.com/auth/$1" },
+    { "source": "/api/:match*", "destination": "https://backend-shop-management.onrender.com/api/:match*" }
   ]
 }

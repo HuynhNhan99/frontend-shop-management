@@ -1,70 +1,64 @@
-import React, { createContext, useState, useEffect, useRef } from "react";
-import authApi from "../api/authApi";
+// src/context/AuthContext.js
+import React, { createContext, useState, useRef, useEffect } from 'react';
+import axiosClient from '../api/axiosClient';
 
 export const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
+export const AuthProvider = ({ children }) => {
+  const [auth, setAuth] = useState({ user: null, accessToken: null });
   const [loading, setLoading] = useState(true);
 
-   // 🧠 Dùng useRef để tránh gọi lại khi StrictMode kích hoạt useEffect 2 lần
-   const didCheck = useRef(false);
+  // ✅ Dùng useRef để check chỉ chạy 1 lần
+  const didCheck = useRef(false);
 
-  // 🔄 Kiểm tra đăng nhập khi reload trang
   useEffect(() => {
-
-    if (location.pathname === "/login") {
-      setLoading(false);
-      return;
-    }
-
     const checkAuth = async () => {
       try {
-        const res = await authApi.user();
-        if (res?.data?.user) setUser(res.data.user);
-        else setUser(null);
+        const res = await axiosClient.get('/auth/user');
+        if (res.data) setAuth({ user: res.data.user, accessToken: res.data.accessToken });
+        else setAuth({ user: null, accessToken: null });
       } catch (err) {
-        console.warn("Phiên đăng nhập không hợp lệ hoặc đã hết hạn");
-        setUser(null);
+        console.warn('Phiên đăng nhập không hợp lệ hoặc đã hết hạn');
+        setAuth({ user: null, accessToken: null });
       } finally {
         setLoading(false);
       }
     };
 
-    // ✅ Chỉ chạy checkAuth 1 lần thật sự
     if (!didCheck.current) {
       didCheck.current = true;
-      checkAuth();
+      // Bỏ qua trang login
+      if (location.pathname !== '/login') checkAuth();
+      else setLoading(false);
     }
-    
   }, []);
 
-  // 🧩 Hàm login
   const login = async (username, password) => {
     try {
-      const res = await authApi.login({ username, password });
-      if (res?.data?.user) setUser(res.data.user);
+      const res = await axiosClient.post('/auth/login', { username, password });
+      if (res?.data?.user) {
+        setAuth({ user: res.data.user, accessToken: res.data.accessToken });
+      }
       return res;
     } catch (err) {
-      console.error("Đăng nhập thất bại:", err.response?.data || err.message);
+      console.error('Đăng nhập thất bại:', err.response?.data || err.message);
       throw err;
     }
   };
 
-  // 🚪 Hàm logout
   const logout = async () => {
     try {
-      await authApi.logout(); // dùng hàm logout chuẩn
+      await axiosClient.post('/auth/logout');
     } catch (err) {
-      console.warn("Lỗi khi logout:", err.message);
+      console.warn('Lỗi khi logout:', err.message);
     } finally {
-      setUser(null);
+      setAuth({ user: null, accessToken: null });
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, login, logout }}>
+    <AuthContext.Provider value={{ auth, setAuth, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
